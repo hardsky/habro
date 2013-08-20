@@ -71,5 +71,13 @@ public class HabroActivity extends Activity
 	    rssItems.addAll(newItems);    
 	    aa.notifyDataSetChanged();
 	}
+	
+	private void populateFromDb(){
+		
+	}
+	
+	private void flushIntoDb(ArrayList<RssItem> lst){
+		
+	}
     
 }
