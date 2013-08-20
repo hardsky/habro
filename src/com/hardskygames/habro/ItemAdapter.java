@@ -33,7 +33,7 @@ public class ItemAdapter extends ArrayAdapter<RssItem> {
         
         RssItem item = getItem(position);
         title.setText(item.getTitle());
-        time.setText(item.getTitle());
+        time.setText(item.getDate());
 
         return view;		
 	}
