@@ -46,9 +46,9 @@ public static ArrayList<RssItem> getRssItems(String feedUrl) {
 
 	ArrayList<RssItem> rssItems = new ArrayList<RssItem>();
 	
-	RssItem rssItemT = new RssItem("Habro news", new Date(), "http://habrahabr.ru/");
+	//RssItem rssItemT = new RssItem("Habro news", new Date(), "http://habrahabr.ru/");
 	
-	rssItems.add(rssItemT);
+	//rssItems.add(rssItemT);
 	
 	try {
 		//open an URL connection make GET to the server and
