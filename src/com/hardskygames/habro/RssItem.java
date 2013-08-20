@@ -5,6 +5,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -27,10 +30,13 @@ public class RssItem {
 	public String getTitle() {
 		return m_title;
 	}
-	public String getDate() {
-		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM - hh:mm:ss");
+	public String getDateStr() {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM - HH:mm:ss");
 	    String result = sdf.format(m_date);
 	    return result;
+	}
+	public Date getDate(){
+		return m_date;
 	}
 	public String getLink() {
 		return m_link;
@@ -93,6 +99,13 @@ public static ArrayList<RssItem> getRssItems(String feedUrl) {
 	} catch (Exception e) {
 	  //TODO
 	}
+	
+	Collections.sort(rssItems, new Comparator<RssItem>(){
+		public int compare(RssItem item1, RssItem item2) {
+			//reverse order
+		    return item2.getDate().compareTo(item1.getDate());
+		  }		
+	});
 	
 	return rssItems;
 }

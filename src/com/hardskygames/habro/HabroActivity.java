@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -15,7 +16,8 @@ public class HabroActivity extends Activity
 {
 	public static RssItem selectedRssItem = null;
 	
-	private static String feedUrl = "http://habrahabr.ru/rss/hubs/";
+	private static String FEED_URL = "http://habrahabr.ru/rss/hubs/";
+	private static String ACTION_WEBVIEW = "com.hardskygames.habro.displayRssItem";
 	private ListView rssListView = null;
 	private ArrayList<RssItem> rssItems = new ArrayList<RssItem>();
 	private ArrayAdapter<RssItem> aa = null;
@@ -31,7 +33,6 @@ public class HabroActivity extends Activity
     {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
 		// get the listview from layout.xml
 		rssListView = (ListView) findViewById(R.id.lstArticles);
 		m_btnRefresh = (Button) findViewById(R.id.btn_refresh);
@@ -42,7 +43,7 @@ public class HabroActivity extends Activity
 			    selectedRssItem = rssItems.get(index);			
 				// we call the other activity that shows a single rss item in
 				// one page
-				Intent intent = new Intent("com.hardskygames.habro.displayRssItem");
+				Intent intent = new Intent(ACTION_WEBVIEW);
 				startActivity(intent);
 			}
 		});
@@ -65,7 +66,7 @@ public class HabroActivity extends Activity
     
 	private void refressRssList() {
 	
-	    ArrayList<RssItem> newItems = RssItem.getRssItems(feedUrl);
+	    ArrayList<RssItem> newItems = RssItem.getRssItems(FEED_URL);
 	    rssItems.clear();
 	    rssItems.addAll(newItems);    
 	    aa.notifyDataSetChanged();
