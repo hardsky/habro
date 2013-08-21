@@ -5,14 +5,16 @@ import android.os.Bundle;
 import android.webkit.WebView;
 
 public class ArticleActivity extends Activity {
-	
+
+	public static String LINK_KEY = "link";	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.article_page);
 		
-	    RssItem selectedRssItem = HabroActivity.selectedRssItem;
 	    WebView page = (WebView)findViewById(R.id.wv_article);
-	    page.loadUrl(selectedRssItem.getLink());
+	    String link = getIntent().getStringExtra(LINK_KEY);
+	    page.loadUrl(link);
 	}
 }
