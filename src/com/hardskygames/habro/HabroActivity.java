@@ -1,75 +1,129 @@
 package com.hardskygames.habro;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.SlidingDrawer;
 
 public class HabroActivity extends Activity
 {
-	public static RssItem selectedRssItem = null;
-	
 	private static String FEED_URL = "http://habrahabr.ru/rss/hubs/";
 	private static String ACTION_WEBVIEW = "com.hardskygames.habro.displayRssItem";
-	private ListView rssListView = null;
-	private ArrayList<RssItem> rssItems = new ArrayList<RssItem>();
-	private ArrayAdapter<RssItem> aa = null;
+
+	private ListView m_listView = null;
 	private Button m_btnRefresh = null;
-	
-	public ListView getListView(){
-		return rssListView;
-	}
-	
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+	private DatabaseHelper m_dbHelper = null;
+	private ArticleListCursorAdapter m_adapter = null;
+	private boolean m_dbReaded = false;
+
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		// get the listview from layout.xml
-		rssListView = (ListView) findViewById(R.id.lstArticles);
+		m_listView = (ListView) findViewById(R.id.lstArticles);
 		m_btnRefresh = (Button) findViewById(R.id.btn_refresh);
-		// here we specify what to execute when individual list items clicked
-		rssListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-		
+
+		m_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> av, View view, int index, long arg3) {
-			    selectedRssItem = rssItems.get(index);			
-				// we call the other activity that shows a single rss item in
-				// one page
+				ItemLinearLayout itemLayout = (ItemLinearLayout)view;
 				Intent intent = new Intent(ACTION_WEBVIEW);
+				intent.putExtra(ArticleActivity.LINK_KEY, itemLayout.getLink());
 				startActivity(intent);
 			}
 		});
+		
 		m_btnRefresh.setOnClickListener(new View.OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
-				refressRssList();
+				new FeedFetchTask().execute(FEED_URL);
 			}
 		});
 		
-		//adapters are used to populate list. they take a collection,
-		//a view (in our example R.layout.list_item
-		aa = new ItemAdapter(this, R.layout.item_article, rssItems);
-		    //here we bind array adapter to the list
-		rssListView.setAdapter(aa);
-		refressRssList();
+		m_dbHelper = new DatabaseHelper(this);
+		m_dbHelper.getWritableDatabase();
 		
-    }
-    
-	private void refressRssList() {
-	
-	    ArrayList<RssItem> newItems = RssItem.getRssItems(FEED_URL);
-	    rssItems.clear();
-	    rssItems.addAll(newItems);    
-	    aa.notifyDataSetChanged();
+		new FeedFetchTask().execute(FEED_URL);
+		
+		m_adapter = new ArticleListCursorAdapter(this, R.layout.item_article, m_dbHelper.queryDb(), DatabaseHelper.DATABASE_COLUMNS, new int[] { R.id.txt_title, R.id.txt_time });
+		m_listView.setAdapter(m_adapter);
+		
+		m_dbReaded = true;
 	}
-    
+    	
+	@Override
+	protected void onDestroy() {
+		m_dbHelper.close();
+		super.onDestroy();
+	}
+	
+	private class FeedFetchTask extends AsyncTask<String, Void, Cursor> {
+		
+	    protected Cursor doInBackground(String... urls) {
+	    	while(!m_dbReaded){
+	    		try {
+    				
+	    			Thread.sleep(500);
+    				
+				} catch (InterruptedException e) {
+					return null;
+				}	    		
+	    	}
+	    	while(true){
+		    	
+	    		if(isCancelled())
+		    		break;
+	    		
+		    	FeedLoader loader = null;
+		    	try{
+		    		loader = new FeedLoader(m_dbHelper);
+		    		loader.connect(urls[0]);
+			    	if(loader.load()){
+			    		final Cursor cr = m_dbHelper.queryDb();
+						return cr;
+			    	}
+		    	}
+				catch(IOException io_ex){//connection
+				}
+				catch (Exception ex) {
+					return null;
+				}
+		    	finally{
+		    		loader.close();
+		    	}
+		    	
+	    		try {
+    				
+	    			Thread.sleep(10000);
+    				
+				} catch (InterruptedException e) {
+					return null;
+				}
+	    	}
+	    	
+	    	return null;
+	    }
+	    
+	    protected void onPostExecute(Cursor cursor) {
+	    	if(cursor == null)
+	    		return;
+	    	
+	    	m_adapter.changeCursor(cursor);
+			m_adapter.notifyDataSetChanged();
+		}
+	}	
 }

@@ -4,7 +4,6 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-
     <WebView
         android:id="@+id/wv_article"
         android:layout_width="match_parent"
