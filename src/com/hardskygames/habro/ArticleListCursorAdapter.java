@@ -26,7 +26,7 @@ public class ArticleListCursorAdapter extends SimpleCursorAdapter{
 		int linkCol = cursor.getColumnIndex("ART_LINK");
 
 		String title = cursor.getString(titleCol);
-		String date = m_dateFormater.format(new Date(cursor.getInt(dateCol) * 1000));
+		String date = m_dateFormater.format(new Date(cursor.getLong(dateCol)));
 		String link = cursor.getString(linkCol);
 
 		ItemLinearLayout layout = (ItemLinearLayout)View.inflate(context, R.layout.item_article, null);
@@ -48,7 +48,7 @@ public class ArticleListCursorAdapter extends SimpleCursorAdapter{
 		int linkCol = cursor.getColumnIndex("ART_LINK");
 
 		String title = cursor.getString(titleCol);
-		String date = m_dateFormater.format(new Date(cursor.getInt(dateCol) * 1000));
+		String date = m_dateFormater.format(new Date(cursor.getLong(dateCol)));
 		String link = cursor.getString(linkCol);
 
 		ItemLinearLayout layout = (ItemLinearLayout)v;

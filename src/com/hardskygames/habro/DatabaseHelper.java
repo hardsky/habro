@@ -46,7 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void writeDb(String title, Date date, String link){
 		ContentValues values = new ContentValues(3);
 		values.put("ART_TITLE", title);
-		values.put("ART_DATE", (long)(date.getTime() / 1000.0));
+		values.put("ART_DATE", date.getTime());
 		values.put("ART_LINK", link);		
 		getWritableDatabase().insert("articles", null, values);
 	}

@@ -70,6 +70,7 @@ public class HabroActivity extends Activity
 		m_dbHelper.close();
 		super.onDestroy();
 	}
+	
 	private class FeedFetchTask extends AsyncTask<String, Void, Cursor> {
 		
 	    protected Cursor doInBackground(String... urls) {
