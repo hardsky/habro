@@ -13,15 +13,17 @@ import android.widget.ListView;
 
 public class HabroActivity extends Activity
 {
-	private static String FEED_URL = "http://habrahabr.ru/rss/hubs/";
-	private static String ACTION_WEBVIEW = "com.hardskygames.habro.displayRssItem";
+	private static final String FEED_URL = "http://habrahabr.ru/rss/hubs/";
+	private static final String ACTION_WEBVIEW = "com.hardskygames.habro.displayRssItem";
 
 	private ListView m_listView = null;
 	private Button m_btnRefresh = null;
 	private DatabaseHelper m_dbHelper = null;
 	private ArticleListCursorAdapter m_adapter = null;
-	private boolean m_dbReaded = false;
-
+	
+	private static volatile boolean m_fetchTaskInUse = false;
+	private static final Object m_fetchSyncObj = new Object();
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -48,13 +50,11 @@ public class HabroActivity extends Activity
 		
 		m_dbHelper = new DatabaseHelper(this);
 		m_dbHelper.getWritableDatabase();
-		
-		new FeedFetchTask().execute(FEED_URL);
-		
+				
 		m_adapter = new ArticleListCursorAdapter(this, R.layout.item_article, m_dbHelper.queryDb(), DatabaseHelper.DATABASE_COLUMNS, new int[] { R.id.txt_title, R.id.txt_time });
 		m_listView.setAdapter(m_adapter);
-		
-		m_dbReaded = true;
+
+		new FeedFetchTask().execute(FEED_URL);		
 	}
     	
 	@Override
@@ -64,50 +64,53 @@ public class HabroActivity extends Activity
 	}
 	
 	private class FeedFetchTask extends AsyncTask<String, Void, Cursor> {
-		
+			
 	    protected Cursor doInBackground(String... urls) {
-	    	while(!m_dbReaded){
-	    		try {
-    				
-	    			Thread.sleep(500);
-    				
-				} catch (InterruptedException e) {
-					return null;
-				}	    		
-	    	}
-	    	while(true){
-		    	
-	    		if(isCancelled())
-		    		break;
-	    		
-		    	FeedLoader loader = null;
-		    	try{
-		    		loader = new FeedLoader(m_dbHelper);
-		    		loader.connect(urls[0]);
-			    	if(loader.load()){
-			    		final Cursor cr = m_dbHelper.queryDb();
-						return cr;
-			    	}
-		    	}
-				catch(IOException io_ex){//connection
-				}
-				catch (Exception ex) {
-					return null;
-				}
-		    	finally{
-		    		loader.close();
-		    	}
-		    	
-	    		try {
-    				
-	    			Thread.sleep(10000);
-    				
-				} catch (InterruptedException e) {
-					return null;
-				}
-	    	}
+	    	if(m_fetchTaskInUse)
+	    		return null;
 	    	
-	    	return null;
+	    	synchronized (m_fetchSyncObj) {
+						
+		    	if(m_fetchTaskInUse)
+		    		return null;
+	    		
+		    	m_fetchTaskInUse = true;
+		    	Cursor res = null;
+		    	
+		    	while(true){
+			    	
+		    		if(isCancelled()){
+			    		break;
+		    		}
+		    		
+			    	FeedLoader loader = null;
+			    	try{
+			    		loader = new FeedLoader(m_dbHelper);
+			    		loader.connect(urls[0]);
+				    	if(loader.load())
+				    		res = m_dbHelper.queryDb();
+				    	
+				    	break;
+			    	}
+					catch(IOException io_ex){//connection troubles, we will wait, than try again
+					}
+					catch (Exception ex) {
+						break;
+					}
+			    	finally{
+		    			loader.close();
+			    	}
+			    	
+		    		try {	    				
+		    			Thread.sleep(10000);	    				
+					} catch (InterruptedException e) {
+						break;
+					}
+		    	}
+		    	
+		    	m_fetchTaskInUse = false;
+		    	return res;
+			}	    	
 	    }
 	    
 	    protected void onPostExecute(Cursor cursor) {
@@ -116,6 +119,6 @@ public class HabroActivity extends Activity
 	    	
 	    	m_adapter.changeCursor(cursor);
 			m_adapter.notifyDataSetChanged();
-		}
+		}	    
 	}	
 }
