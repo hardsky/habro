@@ -13,7 +13,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	public static final String DATABASE_NAME = "Habro.db";
 	public static final int DATABASE_VERSION = 2;
-	public static final String[] DATABASE_COLUMNS = new String[] {"ART_TITLE", "ART_DATE", "ART_LINK" };
+	public static final String COLUMN_TITLE = "ART_TITLE";
+	public static final String COLUMN_DATE = "ART_DATE";
+	public static final String COLUMN_LINK = "ART_LINK";
+	public static final String[] DATABASE_COLUMNS = new String[] {COLUMN_TITLE, COLUMN_DATE, COLUMN_LINK };
+	public static final String TABLE_NAME = "articles";
 
 	
 	public DatabaseHelper(Context context) {
@@ -21,33 +25,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL("CREATE TABLE IF NOT EXISTS articles (" +
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
 				BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "ART_TITLE TEXT, " +
-                "ART_DATE INTEGER, " +
-                "ART_LINK TEXT" +
+				COLUMN_TITLE + " TEXT, " +
+				COLUMN_DATE + " INTEGER, " +
+				COLUMN_LINK + " TEXT" +
                 ");");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP VIEW IF EXISTS articles;");		
+		db.execSQL("DROP VIEW IF EXISTS " + TABLE_NAME + ";");		
 		onCreate(db);
 	}
 
 	public Cursor queryDb(){
-		return getReadableDatabase().query("articles", new String[] { BaseColumns._ID, "ART_TITLE", "ART_DATE", "ART_LINK" }, null, null, null, null, "ART_DATE desc");
+		return getReadableDatabase().query(TABLE_NAME, new String[] { BaseColumns._ID, COLUMN_TITLE, COLUMN_DATE, COLUMN_LINK }, null, null, null, null, COLUMN_DATE + " desc");
 	}
 
 	public void clearDb(){
-		getWritableDatabase().delete("articles", null, null);
+		getWritableDatabase().delete(TABLE_NAME, null, null);
 	}
 
 	public void writeDb(String title, Date date, String link){
 		ContentValues values = new ContentValues(3);
-		values.put("ART_TITLE", title);
-		values.put("ART_DATE", date.getTime());
-		values.put("ART_LINK", link);		
-		getWritableDatabase().insert("articles", null, values);
+		values.put(COLUMN_TITLE, title);
+		values.put(COLUMN_DATE, date.getTime());
+		values.put(COLUMN_LINK, link);		
+		getWritableDatabase().insert(TABLE_NAME, null, values);
 	}
 }

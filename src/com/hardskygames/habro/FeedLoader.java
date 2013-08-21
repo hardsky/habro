@@ -18,8 +18,7 @@ import org.xml.sax.SAXException;
 public class FeedLoader{
 	private DatabaseHelper m_dbHelper = null;
 	private HttpURLConnection m_conn = null;
-	private static final SimpleDateFormat RFC822 = new SimpleDateFormat(
-		      "EEE, dd MMM yyyy HH:mm:ss Z", java.util.Locale.ENGLISH);
+	private static final SimpleDateFormat RFC822 = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", java.util.Locale.ENGLISH);
 	
 	public FeedLoader(DatabaseHelper dbHelper){
 		m_dbHelper = dbHelper;

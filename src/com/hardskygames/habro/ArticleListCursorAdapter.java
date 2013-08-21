@@ -21,9 +21,9 @@ public class ArticleListCursorAdapter extends SimpleCursorAdapter{
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
  
-		int titleCol = cursor.getColumnIndex("ART_TITLE");
-		int dateCol = cursor.getColumnIndex("ART_DATE");
-		int linkCol = cursor.getColumnIndex("ART_LINK");
+		int titleCol = cursor.getColumnIndex(DatabaseHelper.COLUMN_TITLE);
+		int dateCol = cursor.getColumnIndex(DatabaseHelper.COLUMN_DATE);
+		int linkCol = cursor.getColumnIndex(DatabaseHelper.COLUMN_LINK);
 
 		String title = cursor.getString(titleCol);
 		String date = m_dateFormater.format(new Date(cursor.getLong(dateCol)));
@@ -43,9 +43,9 @@ public class ArticleListCursorAdapter extends SimpleCursorAdapter{
     @Override
     public void bindView(View v, Context context, Cursor cursor) {
  
-		int titleCol = cursor.getColumnIndex("ART_TITLE");
-		int dateCol = cursor.getColumnIndex("ART_DATE");
-		int linkCol = cursor.getColumnIndex("ART_LINK");
+		int titleCol = cursor.getColumnIndex(DatabaseHelper.COLUMN_TITLE);
+		int dateCol = cursor.getColumnIndex(DatabaseHelper.COLUMN_DATE);
+		int linkCol = cursor.getColumnIndex(DatabaseHelper.COLUMN_LINK);
 
 		String title = cursor.getString(titleCol);
 		String date = m_dateFormater.format(new Date(cursor.getLong(dateCol)));
