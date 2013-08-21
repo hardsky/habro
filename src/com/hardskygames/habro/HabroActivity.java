@@ -1,22 +1,15 @@
 package com.hardskygames.habro;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SlidingDrawer;
 
 public class HabroActivity extends Activity
 {
@@ -29,7 +22,6 @@ public class HabroActivity extends Activity
 	private ArticleListCursorAdapter m_adapter = null;
 	private boolean m_dbReaded = false;
 
-	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
